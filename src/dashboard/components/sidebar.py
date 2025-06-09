@@ -1,7 +1,8 @@
 import streamlit as st
 from datetime import datetime
-from ..utils.database import load_latest_data
-from ..config.settings import (
+import time
+from dashboard.utils.database import load_latest_data
+from dashboard.config.settings import (
     DB_URI,
     REFRESH_INTERVALS,
     DEFAULT_REFRESH_INTERVAL,
@@ -32,7 +33,7 @@ def render_sidebar():
     # Manual refresh button
     if st.button("🔄 Refresh Now", type="primary"):
         st.cache_data.clear()
-        st.session_state.last_update = datetime.now()
+        st.session_state.last_update = time.time()
         st.rerun()
 
     # Time range selector for historical data
@@ -56,7 +57,9 @@ def render_sidebar():
 
     # Status info
     st.subheader("ℹ️ Status")
-    st.write(f"**Last Updated:** {st.session_state.last_update.strftime('%H:%M:%S')}")
+    st.write(
+        f"**Last Updated:** {datetime.fromtimestamp(st.session_state.last_update).strftime('%H:%M:%S')}"
+    )
 
     # Connection status
     try:

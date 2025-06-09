@@ -1,12 +1,13 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+import time
 
-from .components.charts import create_realtime_chart
-from .components.sidebar import render_sidebar
-from .utils.database import load_latest_data, load_historical_data
-from .utils.helpers import get_machine_status
-from .config.settings import (
+from dashboard.components.charts import create_realtime_chart
+from dashboard.components.sidebar import render_sidebar
+from dashboard.utils.database import load_latest_data, load_historical_data
+from dashboard.utils.helpers import get_machine_status
+from dashboard.config.settings import (
     DB_URI,
     DEFAULT_TIME_RANGE,
     TEMP_WARNING_THRESHOLD,
@@ -52,14 +53,15 @@ st.markdown(
 
 # Initialize session state
 if "last_update" not in st.session_state:
-    st.session_state.last_update = datetime.now()
+    st.session_state.last_update = time.time()
 if "auto_refresh_enabled" not in st.session_state:
     st.session_state.auto_refresh_enabled = True
 if "time_range" not in st.session_state:
     st.session_state.time_range = DEFAULT_TIME_RANGE
 
 # Render sidebar and get controls
-auto_refresh, refresh_interval, time_range = render_sidebar()
+with st.sidebar:
+    auto_refresh, refresh_interval, time_range = render_sidebar()
 
 # Auto-refresh implementation
 if auto_refresh:
@@ -67,13 +69,14 @@ if auto_refresh:
     refresh_placeholder = st.sidebar.empty()
 
     # Check if it's time to refresh
-    time_since_update = (datetime.now() - st.session_state.last_update).total_seconds()
+    current_time = time.time()
+    time_since_update = current_time - st.session_state.last_update
 
     if time_since_update >= refresh_interval:
         # Clear all caches
         st.cache_data.clear()
         # Update last update time
-        st.session_state.last_update = datetime.now()
+        st.session_state.last_update = current_time
         # Force rerun
         st.rerun()
     else:
@@ -310,6 +313,6 @@ with tab4:
 if auto_refresh:
     st.markdown(
         f'<div class="refresh-info">🔄 Auto-refresh enabled: Every {refresh_interval} seconds | '
-        f'Last updated: {st.session_state.last_update.strftime("%H:%M:%S")}</div>',
+        f'Last updated: {datetime.fromtimestamp(st.session_state.last_update).strftime("%H:%M:%S")}</div>',
         unsafe_allow_html=True,
     )
