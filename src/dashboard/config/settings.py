@@ -13,13 +13,13 @@ DB_URI = "mysql+pymysql://{}:{}@{}/{}".format(
 )
 
 # Dashboard configuration
-DEFAULT_TIME_RANGE = "Last 6 Hours"
+DEFAULT_TIME_RANGE = "Last 24 Hours"
 REFRESH_INTERVALS = [30, 60, 120, 300]
 DEFAULT_REFRESH_INTERVAL = 60
 
 # Temperature thresholds
 TEMP_WARNING_THRESHOLD = 150
-TEMP_DANGER_THRESHOLD = 200
+TEMP_DANGER_THRESHOLD = 250
 
 # Performance thresholds
 PERFORMANCE_WARNING_THRESHOLD = 70

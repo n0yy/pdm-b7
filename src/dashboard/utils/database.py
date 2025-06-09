@@ -53,7 +53,6 @@ def load_historical_data(uri: str, time_range: str) -> pd.DataFrame:
 
         # Add sampling for large datasets
         if time_range in ["Last 7 Days", "Last 30 Days"]:
-            # Sample every 10th record for week/month view to reduce load
             query = query.replace(
                 "ORDER BY times DESC",
                 "AND MOD(UNIX_TIMESTAMP(times), 10) = 0 ORDER BY times DESC",

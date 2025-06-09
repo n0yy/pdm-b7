@@ -1,6 +1,5 @@
 import streamlit as st
-import pandas as pd
-from datetime import datetime
+from streamlit_autorefresh import st_autorefresh
 import time
 
 from dashboard.components.charts import create_realtime_chart
@@ -10,15 +9,13 @@ from dashboard.utils.helpers import get_machine_status
 from dashboard.config.settings import (
     DB_URI,
     DEFAULT_TIME_RANGE,
-    TEMP_WARNING_THRESHOLD,
-    TEMP_DANGER_THRESHOLD,
 )
 
 # Page configuration
 st.set_page_config(
     page_title="PdM Dashboard - Ilapak 3",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # Custom CSS for styling
@@ -59,40 +56,18 @@ if "auto_refresh_enabled" not in st.session_state:
 if "time_range" not in st.session_state:
     st.session_state.time_range = DEFAULT_TIME_RANGE
 
-# Render sidebar and get controls
 with st.sidebar:
     auto_refresh, refresh_interval, time_range = render_sidebar()
 
-# Auto-refresh implementation
-if auto_refresh:
-    # Create a placeholder for the auto-refresh timer
-    refresh_placeholder = st.sidebar.empty()
 
-    # Check if it's time to refresh
-    current_time = time.time()
-    time_since_update = current_time - st.session_state.last_update
-
-    if time_since_update >= refresh_interval:
-        # Clear all caches
-        st.cache_data.clear()
-        # Update last update time
-        st.session_state.last_update = current_time
-        # Force rerun
-        st.rerun()
-    else:
-        # Show countdown
-        remaining = refresh_interval - time_since_update
-        progress = 1 - (remaining / refresh_interval)
-        refresh_placeholder.progress(progress)
-        refresh_placeholder.write(f"⏱️ Next refresh in: {remaining:.0f}s")
-
-# Main dashboard content
 st.markdown(
     '<h1 class="main-header">🏭 Predictive Maintenance Dashboard - Ilapak 3</h1><br><br>',
     unsafe_allow_html=True,
 )
 
-# Load data efficiently
+if auto_refresh:
+    st_autorefresh(interval=refresh_interval * 1000, key="dashboard_refresh")
+
 latest_df = load_latest_data(DB_URI)
 historical_df = load_historical_data(DB_URI, time_range)
 
@@ -100,10 +75,8 @@ if latest_df.empty:
     st.error("❌ No data available. Please check your database connection.")
     st.stop()
 
-# Get machine status
 status, status_icon = get_machine_status(latest_df)
 
-# Top metrics row
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
@@ -181,7 +154,6 @@ with tab1:
         )
         st.plotly_chart(fig_trends, use_container_width=True)
 
-    # Recent data table - limited rows
     st.subheader("📋 Recent Data")
     display_cols = [
         "Status",
@@ -210,22 +182,22 @@ with tab2:
         st.subheader("🌡️ Current Temperatures")
         for col in temp_cols:
             current_temp = latest_df[col].iloc[0]
-            status_class = (
-                "status-danger"
-                if current_temp > TEMP_DANGER_THRESHOLD
-                else (
-                    "status-warning"
-                    if current_temp > TEMP_WARNING_THRESHOLD
-                    else "status-good"
-                )
-            )
-            short_name = (
-                col.replace("Suhu Sealing ", "")
-                .replace(" (oC)", "")
-                .replace("(oC )", "")
-            )
+            short_name = col.replace(" (oC)", "").replace("(oC )", "")
+
+            if current_temp < 50:
+                color = "#1f77b4"
+            elif 50 <= current_temp <= 80:
+                color = "#2ca02c"
+            else:
+                color = "#d62728"
+
             st.markdown(
-                f"<div class='{status_class}'>{short_name}: {current_temp:.1f}°C</div>",
+                f"""
+                <div>
+                    <strong>{short_name}:</strong> 
+                    <span style="color:{color}; font-weight:bold;">{current_temp:.1f}</span> °C
+                </div>
+                """,
                 unsafe_allow_html=True,
             )
 
@@ -239,9 +211,7 @@ with tab2:
     # Temperature trend chart
     if not historical_df.empty:
         st.subheader(f"📈 Temperature Trends - {time_range}")
-        fig_temp = create_realtime_chart(
-            historical_df, temp_cols, f"Temperature Trends - {time_range}"
-        )
+        fig_temp = create_realtime_chart(historical_df, temp_cols, y_lim=(150, 250))
         st.plotly_chart(fig_temp, use_container_width=True)
 
 with tab3:
@@ -302,17 +272,13 @@ with tab3:
         with col2:
             output_cols = ["Counter Output (pack)", "Counter Reject (pack)"]
             fig_output = create_realtime_chart(
-                historical_df, output_cols, f"Output Trend - {time_range}"
+                historical_df,
+                output_cols,
+                title=f"Output Trend - {time_range}",
+                secondary_y_cols=["Counter Reject (pack)"],
             )
             st.plotly_chart(fig_output, use_container_width=True)
 
+
 with tab4:
     st.header("🚨 Anomaly Detection")
-
-# Auto-refresh status
-if auto_refresh:
-    st.markdown(
-        f'<div class="refresh-info">🔄 Auto-refresh enabled: Every {refresh_interval} seconds | '
-        f'Last updated: {datetime.fromtimestamp(st.session_state.last_update).strftime("%H:%M:%S")}</div>',
-        unsafe_allow_html=True,
-    )
