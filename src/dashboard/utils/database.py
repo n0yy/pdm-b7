@@ -37,7 +37,7 @@ def load_latest_data(uri: str) -> pd.DataFrame:
         engine = create_engine(uri)
         # Get only the latest 10 records for real-time metrics
         query = "SELECT * FROM datalog_ilapak3 ORDER BY times DESC LIMIT 10"
-        df = pd.read_sql(query, engine, index_col="times", parse_dates=["times"])
+        df = pd.read_sql(query, engine, parse_dates=["times"])
         return df
     except Exception as e:
         st.error(f"Error loading latest data: {e}")
@@ -58,7 +58,7 @@ def load_historical_data(uri: str, time_range: str) -> pd.DataFrame:
                 "AND MOD(UNIX_TIMESTAMP(times), 10) = 0 ORDER BY times DESC",
             )
 
-        df = pd.read_sql(query, engine, index_col="times", parse_dates=["times"])
+        df = pd.read_sql(query, engine, parse_dates=["times"])
         return df
     except Exception as e:
         st.error(f"Error loading historical data: {e}")
