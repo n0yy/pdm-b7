@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from src.dashboard.utils.predicting import batch_inference
+from src.dashboard.utils.predicting import batch_inference, inference
 from src.dashboard.utils.helpers import preprocess_dataframe
 from twilio.rest import Client
 from dotenv import load_dotenv
@@ -17,28 +17,38 @@ def leakage_tab(historical_df, latest_df, time_range):
 
     # Preprocess dataframes
     historical_df = preprocess_dataframe(historical_df)
+    latest_df = preprocess_dataframe(latest_df)
+
+    # Get latest prediction using single inference
+    latest_pred, latest_prob = inference(latest_df, st.session_state.model)
+    if latest_pred in ["Warning", "Leak"]:
+        st.warning(
+            "⚠️ Warning: High probability of leakage detected! Please investigate immediately."
+        )
+    else:
+        st.success("✅ No leakage detected in the latest data.")
 
     # Get predictions for historical data using batch inference
     predictions, probabilities = batch_inference(
         data=historical_df, _estimator=st.session_state.model
     )
-    # Get latest prediction
-    if predictions[-1:][0] in ["Warning", "Leak"]:
-        st.warning(
-            "⚠️ Warning: High probability of leakage detected! Please investigate immediately."
-        )
-    elif predictions[-1:][0] == "Normal":
-        st.success("✅ No leakage detected. System is functioning normally.")
-    else:
-        st.info(
-            "ℹ️ Predictions indicate normal operation, but please monitor the system closely."
-        )
 
     # Create prediction statistics
     pred_df = pd.DataFrame(
         {"prediction": predictions, "probability": probabilities},
         index=historical_df.index,
     )
+
+    # Add latest prediction to pred_df
+    latest_time = (
+        latest_df.index[0]
+        if isinstance(latest_df.index, pd.DatetimeIndex)
+        else pd.Timestamp.now()
+    )
+    pred_df.loc[latest_time] = {
+        "prediction": latest_pred,
+        "probability": latest_prob.max(),
+    }
 
     # Count predictions
     pred_counts = pred_df["prediction"].value_counts()

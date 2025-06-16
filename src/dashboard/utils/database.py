@@ -14,14 +14,13 @@ def get_time_filter_query(time_range: str) -> str:
     base_query = "SELECT * FROM datalog_ilapak3"
 
     time_filters = {
-        "Last 1 Hour": "1 HOUR",
         "Last 6 Hours": "6 HOUR",
         "Last 24 Hours": "1 DAY",
         "Last 7 Days": "7 DAY",
         "Last 30 Days": "30 DAY",
     }
 
-    interval = time_filters.get(time_range, "6 HOUR")
+    interval = time_filters.get(time_range, "1 DAY")
 
     # Add sampling for larger datasets to improve performance
     if time_range in ["Last 7 Days", "Last 30 Days"]:
@@ -37,10 +36,9 @@ def get_time_filter_query(time_range: str) -> str:
         return f"{base_query} WHERE times >= NOW() - INTERVAL {interval} ORDER BY times DESC"
 
 
-@st.cache_data(ttl=10, max_entries=3)  # Reduced TTL for more real-time data
 def load_latest_data(uri: str, limit: int = 20) -> pd.DataFrame:
     """
-    Load latest data with optimized caching
+    Load latest data without caching for real-time updates
     """
     try:
         engine = create_engine(uri, pool_pre_ping=True, pool_recycle=300)
@@ -63,12 +61,11 @@ def load_latest_data(uri: str, limit: int = 20) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-@st.cache_data(ttl=30, max_entries=5)  # Reduced TTL for better real-time performance
 def load_historical_data(
     uri: str, time_range: str, max_records: int = 1000
 ) -> pd.DataFrame:
     """
-    Load historical data with optimized sampling and caching
+    Load historical data without caching for real-time updates
     """
     try:
         engine = create_engine(uri, pool_pre_ping=True, pool_recycle=300)
@@ -107,16 +104,17 @@ def get_data_freshness(df: pd.DataFrame) -> dict:
     delay = (current_time - latest_time).total_seconds() / 60
 
     return {
-        "is_fresh": delay < 5,  # Fresh if less than 5 minutes old
+        "is_fresh": delay
+        < 1.5,  # Fresh if less than 1.5 minutes old (allowing for 30s processing time)
         "last_update": latest_time,
         "delay_minutes": delay,
+        "needs_refresh": delay > 1.2,  # Force refresh if more than 1.2 minutes old
     }
 
 
-@st.cache_data(ttl=60)
 def get_data_summary(df: pd.DataFrame) -> dict:
     """
-    Get summary statistics for dashboard
+    Get summary statistics for dashboard without caching
     """
     if df.empty:
         return {}

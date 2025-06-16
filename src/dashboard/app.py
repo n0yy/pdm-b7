@@ -48,7 +48,7 @@ def initialize_session_state():
 
 
 def check_data_changes(latest_df):
-    """Check if data has changed to trigger cache clearing"""
+    """Check if data has changed to trigger refresh"""
     if latest_df.empty:
         return False
 
@@ -58,9 +58,6 @@ def check_data_changes(latest_df):
     if st.session_state.last_data_hash != current_hash:
         st.session_state.last_data_hash = current_hash
         st.session_state.data_refresh_count += 1
-        # Clear prediction cache when data changes
-        if st.session_state.data_refresh_count % 10 == 0:  # Clear every 10 updates
-            clear_prediction_cache()
         return True
 
     return False
@@ -76,10 +73,11 @@ def render_data_freshness_indicator(latest_df):
         )
     else:
         delay_min = freshness.get("delay_minutes", 0)
-        if delay_min < 15:
+        if delay_min < 1.2:
             st.warning(f"🟡 Data Delay: {delay_min:.1f} minutes")
         else:
             st.error(f"🔴 Data Stale: {delay_min:.1f} minutes behind")
+            st.rerun()
 
 
 def render_metrics(latest_df):
@@ -198,6 +196,18 @@ def main():
         unsafe_allow_html=True,
     )
 
+    # Initialize session state
+    if "last_data_hash" not in st.session_state:
+        st.session_state.last_data_hash = None
+    if "data_refresh_count" not in st.session_state:
+        st.session_state.data_refresh_count = 0
+    if "auto_refresh_enabled" not in st.session_state:
+        st.session_state.auto_refresh_enabled = True
+    if "time_range" not in st.session_state:
+        st.session_state.time_range = "Last 24 Hours"
+    if "last_update" not in st.session_state:
+        st.session_state.last_update = time.time()
+
     # Initialize
     initialize_session_state()
     load_model()
@@ -212,10 +222,11 @@ def main():
         unsafe_allow_html=True,
     )
 
-    # Auto-refresh logic
+    # Auto-refresh logic with 1-minute interval
     if auto_refresh:
         count = st_autorefresh(
-            interval=refresh_interval * 1000, key="dashboard_refresh"
+            interval=refresh_interval * 1000,
+            key="dashboard_refresh",  # Convert minutes to milliseconds
         )
         if count > 0:
             st.session_state.last_update = time.time()
