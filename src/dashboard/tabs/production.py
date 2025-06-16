@@ -1,5 +1,5 @@
 import streamlit as st
-from dashboard.components.charts import create_realtime_chart
+from src.dashboard.components.charts import create_realtime_chart
 
 
 def production_tab(historical_df, latest_df, time_range):
@@ -26,7 +26,7 @@ def production_tab(historical_df, latest_df, time_range):
 
         st.metric(
             label="Recent Output",
-            value=f"{current_output:,} packs",
+            value=f"{current_output:,}",
             delta=f"{delta_output:.1f}%" if delta_output is not None else None,
         )
 

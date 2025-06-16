@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from dashboard.utils.predicting import inference
+from src.dashboard.utils.predicting import inference
 
 
 def leakage_tab(historical_df, latest_df, time_range):

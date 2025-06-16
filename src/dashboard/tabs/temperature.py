@@ -1,5 +1,5 @@
 import streamlit as st
-from dashboard.components.charts import create_realtime_chart
+from src.dashboard.components.charts import create_realtime_chart
 
 
 def temperature_tab(historical_df, latest_df, time_range):
@@ -46,5 +46,7 @@ def temperature_tab(historical_df, latest_df, time_range):
     # Temperature trend chart
     if not historical_df.empty:
         st.subheader(f"📈 Temperature Trends - {time_range}")
+        if "times" in historical_df.columns:
+            historical_df.set_index("times", inplace=True)
         fig_temp = create_realtime_chart(historical_df, temp_cols, y_lim=(150, 250))
         st.plotly_chart(fig_temp, use_container_width=True)

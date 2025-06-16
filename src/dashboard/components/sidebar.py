@@ -1,8 +1,8 @@
 import streamlit as st
 from datetime import datetime
 import time
-from dashboard.utils.database import load_latest_data
-from dashboard.config.settings import (
+from src.dashboard.utils.database import load_latest_data
+from src.dashboard.config.settings import (
     DB_URI,
     REFRESH_INTERVALS,
     DEFAULT_REFRESH_INTERVAL,

@@ -1,6 +1,3 @@
-import pandas as pd
-
-
 def convert_time_to_seconds(time_str):
     """Convert hh:mm:ss string to total seconds"""
     try:
@@ -34,7 +31,7 @@ def get_machine_status(df):
         return "Running", "🟢", latest_output_time_diff
     elif latest["Status"] == 1 and latest["Speed(rpm)"] == 0:
         return "Idle", "🟡", latest_output_time_diff
-    elif latest["Status"] == 0:
+    elif latest["Status"] == 3:
         return "Stopped", "🔴", latest_output_time_diff
 
     return "Unknown", "⚪", latest_output_time_diff

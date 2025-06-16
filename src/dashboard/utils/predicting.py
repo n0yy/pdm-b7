@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.pipeline import Pipeline
-from dashboard.utils.feature_engineering import preprocess
+from src.dashboard.utils.feature_engineering import preprocess
 
 
 def inference(

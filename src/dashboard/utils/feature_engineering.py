@@ -13,10 +13,20 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
     for col in time_cols:
         X[col.split(" (")[0] + "_sec"] = pd.to_timedelta(X[col]).dt.total_seconds()
 
-    # Times
-    X["day"] = X["times"].dt.day
-    X["hour"] = X["times"].dt.hour
-    X["minute"] = X["times"].dt.minute
+    if "times" in X.columns:
+        X["day"] = X["times"].dt.day
+        X["hour"] = X["times"].dt.hour
+        X["minute"] = X["times"].dt.minute
+    else:
+        if isinstance(X.index, pd.DatetimeIndex):
+            X["day"] = X.index.day
+            X["hour"] = X.index.hour
+            X["minute"] = X.index.minute
+        else:
+            X["day"] = 1
+            X["hour"] = 0
+            X["minute"] = 0
+
     # Diff
     X["diff_sealing_vertical"] = (
         X["Suhu Sealing Vertical Atas (oC)"] - X["Suhu Sealing Vertikal Bawah (oC)"]
