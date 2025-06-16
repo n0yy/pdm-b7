@@ -263,7 +263,3 @@ This project is part of BTS Batch 3 program.
 ## 👥 Credits
 
 **Built by @nangdosan** - BTS Batch 3
-
----
-
-For detailed documentation of individual components, see the respective folder documentation files.
