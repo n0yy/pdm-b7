@@ -8,3 +8,4 @@ joblib
 tensorflow
 sqlalchemy
 streamlit_autorefresh
+python-dotenv
