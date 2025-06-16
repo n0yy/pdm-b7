@@ -1,8 +1,12 @@
 import streamlit as st
 from src.dashboard.components.charts import create_realtime_chart
+from src.dashboard.utils.helpers import get_processed_dataframes
 
 
 def temperature_tab(historical_df, latest_df, time_range):
+    # Process dataframes
+    historical_df, latest_df = get_processed_dataframes(historical_df, latest_df)
+
     temp_cols = [
         "Suhu Sealing Vertikal Bawah (oC)",
         "Suhu Sealing Vertical Atas (oC)",

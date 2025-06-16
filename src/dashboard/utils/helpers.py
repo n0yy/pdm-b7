@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 def convert_time_to_seconds(time_str):
     """Convert hh:mm:ss string to total seconds"""
     try:
@@ -35,3 +38,42 @@ def get_machine_status(df):
         return "Stopped", "🔴", latest_output_time_diff
 
     return "Unknown", "⚪", latest_output_time_diff
+
+
+def preprocess_dataframe(df: pd.DataFrame, set_index: bool = True) -> pd.DataFrame:
+    """
+    Preprocess DataFrame untuk visualisasi dan analisis
+    Args:
+        df: DataFrame yang akan diproses
+        set_index: Apakah times column harus dijadikan index
+    Returns:
+        DataFrame yang sudah diproses
+    """
+    if df.empty:
+        return df
+
+    df = df.copy()
+
+    # Handle missing values
+    numeric_cols = df.select_dtypes(include=["float64", "int64"]).columns
+    df[numeric_cols] = df[numeric_cols].fillna(method="ffill").fillna(method="bfill")
+
+    # Set index jika diperlukan
+    if set_index and "times" in df.columns:
+        df.set_index("times", inplace=True)
+
+    return df
+
+
+def get_processed_dataframes(
+    historical_df: pd.DataFrame, latest_df: pd.DataFrame
+) -> tuple:
+    """
+    Memproses historical dan latest DataFrame untuk visualisasi
+    Returns:
+        Tuple dari (processed_historical_df, processed_latest_df)
+    """
+    return (
+        preprocess_dataframe(historical_df, set_index=True),
+        preprocess_dataframe(latest_df, set_index=False),
+    )

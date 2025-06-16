@@ -1,21 +1,20 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from src.dashboard.utils.predicting import inference
+from src.dashboard.utils.predicting import batch_inference
+from src.dashboard.utils.helpers import preprocess_dataframe
 
 
 def leakage_tab(historical_df, latest_df, time_range):
     st.header("🚨 Leakage Prediction")
 
-    # Get predictions for historical data
-    predictions = []
-    probabilities = []
-    print(historical_df)
+    # Preprocess dataframes
+    historical_df = preprocess_dataframe(historical_df)
 
-    for _, row in historical_df.iterrows():
-        pred, probs = inference(pd.DataFrame([row]), st.session_state.model)
-        predictions.append(pred)
-        probabilities.append(probs.max())
+    # Get predictions for historical data using batch inference
+    predictions, probabilities = batch_inference(
+        data=historical_df, _estimator=st.session_state.model
+    )
 
     # Create prediction statistics
     pred_df = pd.DataFrame(
