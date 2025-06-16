@@ -4,6 +4,20 @@ A real-time predictive maintenance dashboard for industrial equipment monitoring
 
 ## 🏭 Overview
 
+The following dashboard views display key metrics for monitoring the Ilapak 3 packaging machine:
+
+![Overview Tab](assets/overview.png)
+_Overview Tab: Displays real-time OEE, Availability, Performance, and Quality metrics_
+
+![Temperature Tab](assets/temperature.png)
+_Temperature Tab: Monitors temperature from 4 sealing_
+
+![Production Tab](assets/production.png)
+_Production Tab: Tracks production speed (RPM), output count, and reject rate_
+
+![Leakage Prediction Tab](assets/leakage_prediction.png)
+_Leakage Prediction Tab: Shows ML-based leakage predictions with confidence scores and status distribution_
+
 This project implements a comprehensive predictive maintenance solution that:
 
 - **Monitors** real-time industrial equipment data
