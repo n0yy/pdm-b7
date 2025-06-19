@@ -51,21 +51,17 @@ st.plotly_chart(fig, use_container_width=True)
 Dashboard control panel with real-time settings.
 
 ```python
-def render_sidebar() -> tuple[bool, int, str]
+def render_sidebar() -> str
 ```
 
 **Controls:**
 
-- **Auto-refresh Toggle**: Enable/disable live updates
-- **Refresh Intervals**: 30s, 60s, 120s, 300s options
 - **Time Range Selection**: Historical data filtering
 - **Manual Refresh**: Force immediate data reload
 - **Connection Status**: Database health indicator
 
 **Returns:**
 
-- `auto_refresh`: Boolean flag for auto-refresh state
-- `refresh_interval`: Selected interval in seconds
 - `time_range`: Selected historical time range
 
 **Features:**
@@ -106,7 +102,7 @@ from src.dashboard.components.charts import create_realtime_chart
 
 # Sidebar integration
 with st.sidebar:
-    auto_refresh, refresh_interval, time_range = render_sidebar()
+    time_range = render_sidebar()
 
 # Chart integration
 fig = create_realtime_chart(data, columns)

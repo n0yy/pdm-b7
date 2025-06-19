@@ -14,7 +14,7 @@ from src.dashboard.config.settings import (
     DB_URI,
     DEFAULT_TIME_RANGE,
 )
-from src.dashboard.utils.predicting import inference, clear_prediction_cache
+from src.dashboard.utils.predicting import inference
 from src.dashboard.tabs.overview import overview_tab
 from src.dashboard.tabs.temperature import temperature_tab
 from src.dashboard.tabs.production import production_tab
@@ -136,26 +136,20 @@ def render_metrics(latest_df):
         )
 
     with col6:
-        # Prediction with error handling
-        try:
-            pred, probs = inference(latest_df, st.session_state.model)
-            max_prob = probs.max() * 100 if len(probs) > 0 else 0
-
-            # Color based on prediction
-            if pred == "Normal":
-                delta_color = "normal"
-            elif pred == "Warning":
-                delta_color = "inverse"
-            else:
-                delta_color = "inverse"
-
-            st.metric(
-                "Leakage Prediction",
-                pred,
-                f"Confidence: {max_prob:.1f}%",
-            )
-        except Exception as e:
-            st.metric("Leakage Prediction", "Error", f"Model Error")
+        # Prediction hanya jika status Running
+        if status == "Running":
+            try:
+                pred, probs = inference(latest_df, st.session_state.model)
+                max_prob = probs.max() * 100 if len(probs) > 0 else 0
+                st.metric(
+                    "Leakage Prediction",
+                    pred,
+                    f"Confidence: {max_prob:.1f}%",
+                )
+            except Exception as e:
+                st.metric("Leakage Prediction", "Error", f"Model Error")
+        else:
+            st.metric("Leakage Prediction", "-", "Hanya tersedia saat mesin Running")
 
 
 def main():
@@ -214,7 +208,7 @@ def main():
 
     # Sidebar
     with st.sidebar:
-        auto_refresh, refresh_interval, time_range = render_sidebar()
+        time_range = render_sidebar()
 
     # Main header
     st.markdown(
@@ -222,14 +216,12 @@ def main():
         unsafe_allow_html=True,
     )
 
-    # Auto-refresh logic with 1-minute interval
-    if auto_refresh:
-        count = st_autorefresh(
-            interval=refresh_interval * 1000,
-            key="dashboard_refresh",  # Convert minutes to milliseconds
-        )
-        if count > 0:
-            st.session_state.last_update = time.time()
+    # Auto-refresh logic dengan interval tetap 1 menit
+    count = st_autorefresh(
+        interval=60 * 1000, key="dashboard_refresh"  # 1 menit dalam milidetik
+    )
+    if count > 0:
+        st.session_state.last_update = time.time()
 
     # Load data with error handling
     try:
