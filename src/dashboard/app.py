@@ -136,7 +136,6 @@ def render_metrics(latest_df):
         )
 
     with col6:
-        # Prediction hanya jika status Running
         if status == "Running":
             try:
                 pred, probs = inference(latest_df, st.session_state.model)

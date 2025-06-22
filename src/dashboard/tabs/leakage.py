@@ -21,7 +21,7 @@ def leakage_tab(historical_df, latest_df, time_range):
 
     # Get latest prediction using single inference
     latest_pred, latest_prob = inference(latest_df, st.session_state.model)
-    if latest_pred in ["Warning", "Leak"]:
+    if latest_pred in ["Warning", "Leak"] and latest_prob.max() > 0.5:
         st.warning(
             "⚠️ Warning: High probability of leakage detected! Please investigate immediately."
         )
