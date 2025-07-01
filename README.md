@@ -1,279 +1,292 @@
-# PdM Dashboard
+# 📊 **Dashboard Predictive Maintenance (PdM)**
 
-A real-time predictive maintenance dashboard for industrial equipment monitoring using Machine Learning approach for anomaly detection, specifically designed for Ilapak 3 packaging machine.
+Dashboard monitoring mesin Ilapak 3 secara real-time menggunakan pendekatan _Machine Learning_ untuk mendeteksi anomali dan kebocoran produk secara prediktif.
 
-## 🏭 Overview
+---
 
-The following dashboard views display key metrics for monitoring the Ilapak 3 packaging machine:
+## 🏭 **Overview**
 
-![Overview Tab](assets/overview.png)
-_Overview Tab: Displays real-time OEE, Availability, Performance, and Quality metrics_
+Dashboard ini menampilkan metrik-metrik penting untuk memantau kinerja mesin pengemasan **Ilapak 3**:
 
-![Temperature Tab](assets/temperature.png)
-_Temperature Tab: Monitors temperature from 4 sealing_
+![Tab Overview](assets/overview.png)
+_Tab Overview: Menampilkan metrik OEE, Ketersediaan, Kinerja, dan Kualitas secara real-time_
 
-![Production Tab](assets/production.png)
-_Production Tab: Tracks production speed (RPM), output count, and reject rate_
+![Tab Temperatur](assets/temperature.png)
+_Tab Temperatur: Memantau suhu dari 4 titik penyegelan_
 
-![Leakage Prediction Tab](assets/leakage_prediction.png)
-_Leakage Prediction Tab: Shows ML-based leakage predictions with confidence scores and status distribution_
+![Tab Produksi](assets/production.png)
+_Tab Produksi: Memantau kecepatan produksi (RPM), jumlah output, dan tingkat reject_
 
-This project implements a comprehensive predictive maintenance solution that:
+![Tab Prediksi Kebocoran](assets/leakage_prediction.png)
+_Tab Prediksi Kebocoran: Menampilkan prediksi kebocoran berbasis ML, skor kepercayaan, dan distribusi status_
 
-- **Monitors** real-time industrial equipment data
-- **Predicts** potential leakages and anomalies using machine learning
-- **Visualizes** operational metrics through an interactive dashboard
-- **Alerts** operators about potential maintenance needs
+---
 
-## 🚀 Features
+## 🧠 Perbandingan Model
 
-### Real-time Dashboard
+| Model         | ROC AUC Score | F1-Score | Accuracy | Precision | Recall   |
+| ------------- | ------------- | -------- | -------- | --------- | -------- |
+| Random Forest | 0.991143      | 0.882334 | 0.974037 | 0.923292  | 0.853553 |
+| LightGBM      | 0.992471      | 0.897406 | 0.976678 | 0.930151  | 0.872522 |
+| XGBoost       | 0.991472      | 0.884185 | 0.973707 | 0.915510  | 0.860485 |
+| LSTM          | 0.974201      | 0.778972 | 0.960704 | 0.874425  | 0.746912 |
 
-- **Live Data Monitoring**: Auto-refreshing dashboard with configurable intervals
-- **Multi-tab Interface**: Overview, Temperature, Production, and Leakage Detection tabs
-- **Interactive Charts**: Plotly-based visualizations with zoom and hover capabilities
-- **Status Indicators**: Machine status, data freshness, and connection health
+## 📑 **Nomenklatur Datalog ILAPAK 3**
 
-### Predictive Analytics
+Tabel berikut menjelaskan nomenklatur yang digunakan dalam datalog mesin ILAPAK 3:
 
-- **Leakage Prediction**: ML-powered anomaly detection with confidence scores
-- **Batch Processing**: Optimized inference for historical data analysis
-- **Performance Metrics**: OEE, Availability, Performance, and Quality tracking
-- **Temperature Monitoring**: Multi-sensor temperature tracking with thresholds
+### **Tabel Nomenklatur**
 
-### Technical Features
+| **Nama Kolom (Inggris)**                     | **Nama Kolom (Indonesia)**         | **Deskripsi**                                    |
+| -------------------------------------------- | ---------------------------------- | ------------------------------------------------ |
+| `times`                                      | Waktu                              | Waktu pencatatan data                            |
+| `Shift`                                      | Shift                              | Shift kerja (Pagi/Siang/Malam)                   |
+| `Status`                                     | Status Mesin                       | Kondisi mesin (Running, Stopped, Alarm, dll.)    |
+| `Suhu Sealing Vertikal Bawah (°C)`           | Suhu Seal Vertikal Bawah           | Suhu elemen penyegel bawah                       |
+| `Suhu Sealing Vertikal Atas (°C)`            | Suhu Seal Vertikal Atas            | Suhu elemen penyegel atas                        |
+| `Suhu Sealing Horizontal Depan/Kanan (°C)`   | Suhu Seal Horizontal Depan/Kanan   | Suhu penyegel horizontal kanan/depan             |
+| `Suhu Sealing Horizontal Belakang/Kiri (°C)` | Suhu Seal Horizontal Belakang/Kiri | Suhu penyegel horizontal kiri/belakang           |
+| `Counter Output (pack)`                      | Output Kemasan                     | Jumlah kemasan berhasil                          |
+| `Counter Reject (pack)`                      | Reject Kemasan                     | Jumlah kemasan gagal                             |
+| `Speed (rpm)`                                | Kecepatan (rpm)                    | Kecepatan mesin                                  |
+| `Availability (%)`                           | Ketersediaan                       | Waktu siap operasi dibandingkan total waktu      |
+| `Performance (%)`                            | Kinerja                            | Efisiensi kecepatan produksi                     |
+| `Quality (%)`                                | Kualitas                           | Produk baik dibandingkan total produksi          |
+| `OEE (%)`                                    | Efektivitas Total Mesin            | Kombinasi Availability, Performance, dan Quality |
+| `Jaws Position`                              | Posisi Rahang                      | Posisi rahang penyegel                           |
+| `Knife Position`                             | Posisi Pisau                       | Posisi pisau pemotong                            |
+| `Pump Position Stop`                         | Posisi Stop Pompa                  | Status posisi pompa                              |
+| `Doser Drive Enable`                         | Aktivasi Dosing                    | Status sistem dosing                             |
+| `Sealing Enable`                             | Aktivasi Penyegelan                | Status sistem penyegelan                         |
+| `Machine Alarm`                              | Alarm Mesin                        | Kode alarm bila terjadi gangguan                 |
+| `Downtime (hh:mm:ss)`                        | Waktu Henti                        | Total waktu mesin berhenti                       |
+| `Output Time (hh:mm:ss)`                     | Waktu Produksi                     | Total waktu produksi aktif                       |
+| `Total Time (hh:mm:ss)`                      | Total Waktu                        | Jumlah waktu produksi dan downtime               |
 
-- **Caching Strategy**: Multi-level caching for optimal performance
-- **Database Integration**: MySQL connection with connection pooling
-- **Responsive Design**: Mobile-friendly interface with modern styling
-- **Error Handling**: Comprehensive error handling and logging
+---
 
-## 📋 Requirements
+### **Catatan Tambahan**
 
-### System Requirements
+- **Sealing**: Proses penyegelan kemasan (vertikal/horizontal)
+- **Jaws**: Rahang penyegel (jenis rotary atau long dwell)
+- **OEE**: Metrik untuk mengukur efektivitas total mesin
+
+---
+
+## 🚀 **Fitur Utama**
+
+### Pemantauan Real-time
+
+- 🔁 Auto-refresh data (30s–5 menit)
+- 📊 Visualisasi interaktif (Plotly)
+- 🧭 Navigasi multi-tab
+- 🔴 Indikator status mesin & koneksi
+
+### Analitik Prediktif
+
+- 🤖 Prediksi kebocoran berbasis ML
+- 🧠 Confidence Score
+- 🏷️ Deteksi anomali (Normal, Warning, Leak)
+- 🕰️ Tren historis
+
+### Fitur Teknis
+
+- ⚡ Strategi caching berlapis
+- 🛢️ Integrasi database MySQL
+- 📱 Desain responsif
+- 🚨 Penanganan error dan logging
+
+---
+
+## 📋 **Kebutuhan Sistem**
 
 - Python 3.11+
-- MySQL Database
-- 4GB+ RAM (recommended)
-- Modern web browser
+- Database MySQL
+- RAM ≥ 4 GB
+- Browser modern (Chrome/Firefox)
 
-### Dependencies
+### 📦 **Dependensi Utama**
 
-See `pyproject.toml` for complete dependency list. Key packages:
+- `streamlit` — Framework dasbor web
+- `plotly` — Visualisasi interaktif
+- `scikit-learn` — Pipeline ML
+- `lightgbm` — Model boosting
+- `sqlalchemy` — ORM database
+- `pandas` dan `numpy` — Pemrosesan data
 
-- **Streamlit**: Web dashboard framework
-- **Plotly**: Interactive visualizations
-- **Scikit-learn**: Machine learning pipeline
-- **LightGBM**: Gradient boosting model
-- **SQLAlchemy**: Database ORM
-- **Pandas/NumPy**: Data processing
+---
 
-## 🛠️ Installation
+## 🛠️ **Instalasi**
 
-### 1. Clone Repository
+### 1. Kloning Repository
 
 ```bash
 git clone <repository-url>
 cd lstm-ae-anomaly-detection
 ```
 
-### 2. Environment Setup
+### 2. Persiapkan Lingkungan Virtual
 
 ```bash
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-venv\Scripts\activate     # Windows
+source venv/bin/activate      # Linux/Mac
+venv\Scripts\activate         # Windows
 
-# Install dependencies
 pip install -e .
 ```
 
-### 3. Database Configuration
+### 3. Konfigurasi Database
 
-Create `.env` file:
+Buat file `.env`:
 
 ```env
-DB_USER=your_username
-DB_PASSWORD=your_password
+DB_USER=nama_user
+DB_PASSWORD=password
 DB_HOST=localhost
-DB_NAME=your_database
+DB_NAME=nama_database
 ```
 
-### 4. Model Setup
+### 4. Setup Model
 
-Ensure model file exists at:
+Pastikan file model tersedia di:
 
 ```
 src/models/v1/ilapak3/lgbm-model-ilapak3-v1.0.0.pkl
 ```
 
-## 🚦 Usage
+---
 
-### Start Dashboard
+## 🚦 **Penggunaan**
+
+### Menjalankan Aplikasi
 
 ```bash
 python main.py
 ```
 
-### Access Dashboard
+Buka browser: [http://localhost:8501](http://localhost:8501)
 
-Open browser and navigate to: `http://localhost:8501`
+### Kontrol Dasbor
 
-### Dashboard Controls
+- 🔄 **Auto-refresh**
+- 🕒 **Rentang waktu histori**
+- 🔃 **Refresh manual**
+- 🧭 **Navigasi antar tab**
 
-- **Auto Refresh**: Toggle real-time updates (30s-5min intervals)
-- **Time Range**: Select historical data range (1 hour - 30 days)
-- **Manual Refresh**: Force data refresh
-- **Tab Navigation**: Switch between different monitoring views
+---
 
-## 📊 Dashboard Tabs
+## 🧭 **Navigasi Tab Dasbor**
 
-### 1. Overview Tab
+### 1. Tab Overview
 
-- **Efficiency Trends**: Availability, Performance, Quality, OEE metrics
-- **Recent Data**: Latest operational data in tabular format
-- **Historical Analysis**: Trend visualization over selected time range
+- 📈 Tren Efisiensi: OEE, Availability, Performance, Quality
+- 🧮 Data Terbaru: Tabel data terkini
+- 📊 Analisis Historis
 
-### 2. Temperature Tab
+### 2. Tab Temperatur
 
-- **Current Readings**: Real-time temperature from 4 sealing sensors
-- **Temperature Stats**: Statistical summary (min, max, average)
-- **Trend Charts**: Historical temperature patterns
-- **Color-coded Alerts**: Visual indicators for temperature ranges
+- 🌡️ Pembacaan suhu real-time
+- 📉 Statistik suhu (min, max, rata-rata)
+- 🚨 Indikator warna per suhu
 
-### 3. Production Tab
+### 3. Tab Produksi
 
-- **Speed Monitoring**: Current RPM and trend analysis
-- **Output Tracking**: Production count with delta calculations
-- **Reject Analysis**: Quality control metrics
-- **Dual-axis Charts**: Output and reject correlation
+- ⚙️ Monitor kecepatan (RPM)
+- 📦 Output & reject count
+- 📊 Korelasi produksi vs reject
 
-### 4. Leakage Detection Tab
+### 4. Tab Prediksi Kebocoran
 
-- **ML Predictions**: Real-time anomaly detection results
-- **Prediction Statistics**: Normal/Warning/Leak distribution
-- **Confidence Scores**: Model certainty indicators
-- **Historical Trends**: Pattern analysis over time
+- 🧠 Hasil prediksi kebocoran (Normal/Warning/Leak)
+- 📊 Distribusi status
+- 🔍 Confidence Score
+- ⏳ Tren kebocoran historis
 
-## 🔧 Configuration
+---
 
-### Dashboard Settings (`src/dashboard/config/settings.py`)
+## 🔧 **Konfigurasi Sistem**
+
+File: `src/dashboard/config/settings.py`
 
 ```python
-# Refresh intervals (seconds)
 REFRESH_INTERVALS = [30, 60, 120, 300]
 DEFAULT_REFRESH_INTERVAL = 60
 
-# Temperature thresholds (°C)
 TEMP_WARNING_THRESHOLD = 150
 TEMP_DANGER_THRESHOLD = 250
 
-# Performance thresholds (%)
 PERFORMANCE_WARNING_THRESHOLD = 70
 QUALITY_WARNING_THRESHOLD = 95
 OEE_WARNING_THRESHOLD = 70
 ```
 
-### Database Optimization
+---
 
-- **Connection Pooling**: Automatic connection management
-- **Query Optimization**: Indexed queries with time-based filtering
-- **Data Sampling**: Smart sampling for large datasets
-- **Caching Strategy**: Multi-level caching (10s-60s TTL)
-
-## 📁 Project Structure
+## 📁 **Struktur Proyek**
 
 ```
 lstm-ae-anomaly-detection/
-├── main.py                     # Application entry point
-├── pyproject.toml             # Project configuration
+├── main.py
+├── pyproject.toml
 ├── src/
-│   ├── dashboard/             # Dashboard application
-│   │   ├── app.py            # Main dashboard logic
-│   │   ├── components/       # Reusable UI components
-│   │   ├── tabs/            # Dashboard tab implementations
-│   │   ├── utils/           # Utility functions
-│   │   └── config/          # Configuration settings
-│   └── models/              # ML model storage
-└── README.md                # This file
+│   ├── dashboard/
+│   │   ├── app.py
+│   │   ├── components/
+│   │   ├── tabs/
+│   │   ├── utils/
+│   │   └── config/
+│   └── models/
+└── README.md
 ```
 
-## 🔒 Security Considerations
+---
 
-- **Environment Variables**: Sensitive data stored in `.env` file
-- **SQL Injection Protection**: Parameterized queries via SQLAlchemy
-- **Connection Security**: SSL/TLS support for database connections
-- **Input Validation**: Data sanitization and type checking
+## 🔒 **Keamanan**
 
-## 📈 Performance Optimization
+- 🔐 Variabel lingkungan di `.env`
+- 🛡️ Perlindungan SQL Injection (SQLAlchemy)
+- 🔒 Koneksi database dengan TLS
+- 🧼 Validasi dan sanitasi input
 
-### Caching Strategy
+---
 
-- **Data Caching**: 10-60s TTL based on data freshness requirements
-- **Prediction Caching**: 15-30s TTL for ML inference results
-- **Connection Pooling**: Reuse database connections
-- **Smart Sampling**: Reduce data points for large time ranges
+## ⚙️ **Optimasi Performa**
 
-### Memory Management
+### Caching & Memory
 
-- **Batch Processing**: Process large datasets in chunks
-- **Cache Cleanup**: Automatic cleanup of expired cache entries
-- **DataFrame Optimization**: Efficient pandas operations
-- **Memory Monitoring**: Built-in memory usage tracking
+- 🕒 Caching data (10–60 detik TTL)
+- 💾 Caching hasil prediksi (15–30 detik TTL)
+- 🧠 Pemrosesan batch
+- 🧹 Pembersihan cache otomatis
 
-## 🐛 Troubleshooting
+---
 
-### Common Issues
+## 🐛 **Pemecahan Masalah**
 
-**Database Connection Failed**
+| Masalah                  | Solusi                                          |
+| ------------------------ | ----------------------------------------------- |
+| ❌ Gagal koneksi DB      | Periksa file `.env`, pastikan server jalan      |
+| ❌ Model gagal dimuat    | Periksa path model & izin file                  |
+| ❌ Lambat/performa buruk | Kurangi refresh & rentang waktu histori         |
+| 🔄 Data tidak update     | Pastikan auto-refresh aktif atau refresh manual |
 
-- Check `.env` file configuration
-- Verify database server is running
-- Test network connectivity
+---
 
-**Model Loading Error**
-
-- Ensure model file exists at correct path
-- Check file permissions
-- Verify model compatibility
-
-**Performance Issues**
-
-- Reduce refresh interval
-- Decrease historical data range
-- Check system resources
-
-**Data Not Updating**
-
-- Verify auto-refresh is enabled
-- Check database data freshness
-- Manual refresh to force update
-
-## 🧪 Development
-
-### Local Development
+## 🧪 **Pengembangan Lokal**
 
 ```bash
-# Install in development mode
 pip install -e .
-
-# Run with debug mode
 streamlit run src/dashboard/app.py --server.enableWebsocketCompression=false
 ```
 
-### Code Quality
+### Standar Kode
 
-- **Type Hints**: Comprehensive type annotations
-- **Error Handling**: Graceful error recovery
-- **Logging**: Structured logging with different levels
-- **Documentation**: Inline code documentation
+- ✅ Tipe data (type hint)
+- 🧱 Logging & error handling
+- 📚 Dokumentasi internal
 
-## 📝 License
+---
 
-This project is part of BTS Batch 3 program.
+## 👥 Kontributor
 
-## 👥 Credits
-
-**Built by @nangdosan** - BTS Batch 3
+Built by **@nangdosan** – BTS Batch 3

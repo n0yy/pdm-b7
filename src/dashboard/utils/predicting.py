@@ -196,6 +196,11 @@ def inference(
     if data.empty:
         return "Unknown", np.array([0, 0, 0])
 
+    # Determine machine status from the first (most recent) row
+    first_status = data["Status"].iloc[0] if "Status" in data.columns else None
+    if first_status != 2:
+        return "Excluded", np.array([0, 0, 0])
+
     try:
         # Use only the first row for single inference
         single_row = data.iloc[[0]]
@@ -233,7 +238,7 @@ def inference(
         st.session_state.single_prediction_cache = {
             k: v
             for k, v in st.session_state.single_prediction_cache.items()
-            if current_time - v[0] < 60  # Keep for 1 minute
+            if current_time - v[0] < 60
         }
 
         return result

@@ -11,6 +11,7 @@ def overview_tab(historical_df, latest_df, time_range):
     if not historical_df.empty:
         st.subheader(f"📈 Trends - {time_range}")
         efficiency_cols = ["Availability(%)", "Performance(%)", "Quality(%)", "OEE(%)"]
+
         fig_trends = create_realtime_chart(
             historical_df, efficiency_cols, f"Efficiency Trends - {time_range}"
         )

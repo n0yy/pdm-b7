@@ -34,7 +34,7 @@ def get_machine_status(df):
         return "Running", "🟢", latest_output_time_diff
     elif latest["Status"] == 1 and latest["Speed(rpm)"] == 0:
         return "Idle", "🟡", latest_output_time_diff
-    elif latest["Status"] == 3:
+    elif latest["Status"] == 3 or latest["Counter Reject (pack)"].diff() > 0:
         return "Breakdown", "🔴", latest_output_time_diff
 
     return "Unknown", "⚪", latest_output_time_diff
@@ -54,7 +54,6 @@ def preprocess_dataframe(df: pd.DataFrame, set_index: bool = True) -> pd.DataFra
 
     df = df.copy()
 
-    # Handle missing values
     numeric_cols = df.select_dtypes(include=["float64", "int64"]).columns
     df[numeric_cols] = df[numeric_cols].fillna(method="ffill").fillna(method="bfill")
 
